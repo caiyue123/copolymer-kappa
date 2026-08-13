@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>共聚物热导率项目 · 里程碑作战地图</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --ink:#1c2333; --sub:#5b6478;
+    --line:#e3e7f0; --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --green:#1f9d63; --green-bg:#e8f7f0;
+    --orange:#e8871e; --orange-bg:#fdf3e4;
+    --red:#d64545; --red-bg:#fdecec;
+    --purple:#7b4fd8; --purple-bg:#f1ebfc;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.65; padding-bottom:80px;}
+  .wrap{max-width:960px; margin:0 auto; padding:0 20px;}
+
+  header{background:linear-gradient(135deg,#1c2333 0%,#2f6fed 100%); color:#fff; padding:40px 0 32px; margin-bottom:28px;}
+  header h1{font-size:26px; letter-spacing:1px;}
+  header .sub{opacity:.85; margin-top:6px; font-size:14px;}
+  .tag{display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:2px 12px; font-size:12px; margin:10px 6px 0 0;}
+
+  h2{font-size:20px; margin:40px 0 14px; padding-left:12px; border-left:4px solid var(--blue);}
+  h3{font-size:16px; margin:22px 0 10px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:16px; box-shadow:0 1px 3px rgba(28,35,51,.04);}
+
+  .flow{display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:14px;}
+  .flow .step{background:var(--blue-bg); border:1px solid #c9dbfc; color:#1f55b8; border-radius:8px; padding:6px 12px; font-weight:600;}
+  .flow .arr{color:var(--sub); font-weight:700;}
+  .flow .step.loop{background:var(--green-bg); border-color:#bfe8d3; color:#116b44;}
+
+  .roles{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;}
+  .role{border-radius:10px; padding:14px 16px; border:1px solid var(--line);}
+  .role .n{font-weight:700; font-size:15px;}
+  .role .d{font-size:13px; color:var(--sub); margin-top:4px;}
+  .role.lead{background:var(--blue-bg); border-color:#c9dbfc;} .role.lead .n{color:#1f55b8;}
+  .role.sup{background:var(--green-bg); border-color:#bfe8d3;} .role.sup .n{color:#116b44;}
+  .role.qc{background:var(--orange-bg); border-color:#f3ddb8;} .role.qc .n{color:#a35f10;}
+  .role.rec{background:var(--purple-bg); border-color:#dccbf5;} .role.rec .n{color:#5b35a8;}
+
+  .ms{background:var(--card); border:1px solid var(--line); border-radius:14px; margin-bottom:22px; overflow:hidden; box-shadow:0 1px 3px rgba(28,35,51,.04);}
+  .ms-head{padding:16px 22px; color:#fff;}
+  .ms-head h3{margin:0; color:#fff; font-size:18px;}
+  .ms-head .when{font-size:13px; opacity:.9; margin-top:2px;}
+  .ms.m1 .ms-head{background:linear-gradient(135deg,#2f6fed,#4f8df7);}
+  .ms.m2 .ms-head{background:linear-gradient(135deg,#1f9d63,#35bd7e);}
+  .ms.m3 .ms-head{background:linear-gradient(135deg,#e8871e,#f0a94d);}
+  .ms-body{padding:6px 22px 20px;}
+
+  .step-card{border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:14px 0;}
+  .step-card .st-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .step-card .no{background:var(--ink); color:#fff; border-radius:6px; font-size:12px; font-weight:700; padding:2px 8px;}
+  .step-card .name{font-weight:700; font-size:15px;}
+  .step-card .goal{font-size:13px; color:var(--sub); margin-top:6px;}
+  .step-card .who{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px; margin-top:10px;}
+  .step-card .who .cell{background:#f8f9fc; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px;}
+  .step-card .who .cell b{font-size:12px; display:block; margin-bottom:2px;}
+  .step-card .out{margin-top:10px; font-size:13px; background:var(--green-bg); border-left:3px solid var(--green); padding:6px 10px; border-radius:4px;}
+  .step-card .risk{margin-top:8px; font-size:13px; background:var(--red-bg); border-left:3px solid var(--red); padding:6px 10px; border-radius:4px;}
+
+  .check{display:flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; color:var(--sub); cursor:pointer; user-select:none;}
+  .check input{width:17px; height:17px; accent-color:var(--blue); cursor:pointer;}
+  .check.done{color:var(--green); text-decoration:line-through;}
+
+  .note{font-size:13px; color:var(--sub); background:#f8f9fc; border:1px dashed var(--line); border-radius:8px; padding:10px 14px; margin-top:10px;}
+  code{background:#eef1f7; border-radius:4px; padding:1px 6px; font-size:12px; font-family:"SF Mono",Consolas,monospace;}
+  .deploy{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px;}
+  .deploy ol{margin-left:20px; font-size:14px;}
+  .deploy li{margin:6px 0;}
+  footer{margin-top:40px; text-align:center; font-size:12px; color:var(--sub);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>🧪 共聚物热导率项目 · 里程碑作战地图</h1>
+    <div class="sub">基于主动学习的双组分共聚物序列–热导率粗粒化模拟与设计</div>
+    <span class="tag">4 人 · 0 基础</span>
+    <span class="tag">12 周（2026.08.03 – 10.25）</span>
+    <span class="tag">目标：跑通「模拟→预测→推荐→验证」闭环，输出设计规则</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 项目是什么 -->
+  <h2>0. 项目是什么</h2>
+  <div class="card">
+    <p>用 <b>粗粒化分子动力学（LAMMPS）</b> 模拟 AB 共聚物，用 <b>RNEMD</b> 算热导率 κ；把序列编码成特征，喂给 <b>高斯过程回归（GPR）</b>；再用 <b>期望改进（EI）</b> 主动推荐新序列去模拟——用约 20 次模拟替代百万级穷举，最后提取「序列→构象→κ」定量设计规则。</p>
+    <div class="flow" style="margin-top:16px;">
+      <span class="step">① 序列→特征编码</span><span class="arr">→</span>
+      <span class="step">② GPR 预测 κ</span><span class="arr">→</span>
+      <span class="step">③ EI 推荐新序列</span><span class="arr">→</span>
+      <span class="step">④ 模拟验证</span><span class="arr">→</span>
+      <span class="step">⑤ 再训练</span><span class="arr">→</span>
+      <span class="step loop">⑥ 循环收敛 → 设计规则</span>
+    </div>
+    <div class="note">📌 里程碑不是流程里的步骤，而是这条环路「转到什么程度」的三个检查点：
+      <b>M1</b>＝环路的一端（模拟验证）对单序列跑通；<b>M2</b>＝左半边（数据+模型）跑通；<b>M3</b>＝整条环转起来。</div>
+  </div>
+
+  <!-- 怎么一起干活 -->
+  <h2>1. 怎么一起干活（不割裂的分工法）</h2>
+  <div class="card">
+    <p><b>原则：每个里程碑的所有环节，4 个人一起做。</b>不再"一人一块地"，而是每个环节里 4 人各担一个角色，角色随环节轮换：</p>
+    <div class="roles" style="margin-top:14px;">
+      <div class="role lead"><div class="n">🛠 主攻 Lead</div><div class="d">该环节的技术负责人，负责把东西做出来。轮换着当——每个环节的主攻换人。</div></div>
+      <div class="role sup"><div class="n">🤝 辅助 Support</div><div class="d">配合主攻分担具体活：写脚本、跑数据、查资料。主攻卡住时一起 debug。</div></div>
+      <div class="role qc"><div class="n">🔍 质检 Reviewer</div><div class="d">第二双眼睛：检查产出对不对、挑错、提问。0 基础团队最缺的就是"有人检查"。</div></div>
+      <div class="role rec"><div class="n">📝 记录 Scribe</div><div class="d">记录参数、过程、踩坑，产出环节笔记，并向全队复述——保证知识不留在一个人脑子里。</div></div>
+    </div>
+    <div class="note">💡 为什么这样不割裂：① 每个环节 4 人都有活；② 主攻/质检天然形成"做的人 + 查的人"，错误当场暴露；③ 记录环节保证每周例会人人能讲清楚；④ 角色轮换 = 每个人都碰过全流程，中期检查谁都能上台讲。</div>
+  </div>
+
+  <!-- ============ M1 ============ -->
+  <h2>2. 里程碑 M1 · 单序列全流程跑通</h2>
+  <div class="ms m1">
+    <div class="ms-head">
+      <h3>🎯 M1：一个交替序列走完「建模→平衡→RNEMD→构象分析」，κ 与文献量级对齐</h3>
+      <div class="when">时间：W2–W4（08.10 – 08.30）｜这是全项目最关键的坎，后面所有工作都建立在它上面</div>
+    </div>
+    <div class="ms-body">
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 1</span><span class="name">建模：序列 → data/in 文件</span></div>
+        <div class="goal">把序列字符串"ABABAB…"变成 LAMMPS 能读的输入文件：A/B 两种珠子、FENE 键（K=30, R0=1.5）、LJ 非键（ε=1.0, σ=1.0, 截断 2.5, 排除 1-2/1-3）、周期盒子。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 A</b>最懂 LAMMPS 输入格式，写 data + in 脚本</div>
+          <div class="cell"><b>🤝 辅助 B</b>写"序列字符串→data 文件"生成脚本，和 A 一起逐段核对</div>
+          <div class="cell"><b>🔍 质检 C</b>逐行检查 data 文件（键有没有连错、珠子类型对不对），用 VMD 可视化看模型长什么样</div>
+          <div class="cell"><b>📝 记录 D</b>产出《珠簧模型参数说明》一页纸：每个参数什么意思、从哪来的</div>
+        </div>
+        <div class="out">✅ 产出：交替序列 data+in 文件 + 参数说明一页纸</div>
+        <label class="check"><input type="checkbox" data-k="m1s1"> 环节 1 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 2</span><span class="name">平衡：单链跑通 → 多链周期盒 NVT 平衡</span></div>
+        <div class="goal">先单链 20 珠验证模型没错；再扩成 50–100 链 × 20 珠周期盒子做 NVT 平衡，直到能量、密度不再漂移。多链是必须的：热导率是材料性质，单链边界效应太大，且链间范德华本身是热流通道。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 A</b>调 LAMMPS 跑平衡，判断收敛</div>
+          <div class="cell"><b>🤝 辅助 B</b>写收敛检查脚本（能量/密度随时间曲线，自动判稳）</div>
+          <div class="cell"><b>🔍 质检 C</b>看收敛曲线 + VMD 检查平衡后构型是否合理（有没有珠子重叠、盒子有没有撑爆）</div>
+          <div class="cell"><b>📝 记录 D</b>记录平衡条件（时长/步长/温度），产出《平衡日志模板》</div>
+        </div>
+        <div class="out">✅ 产出：平衡轨迹 + 收敛证据（能量/密度曲线）</div>
+        <label class="check"><input type="checkbox" data-k="m1s2"> 环节 2 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 3</span><span class="name">RNEMD 施加热流</span></div>
+        <div class="goal">实现 Müller-Plathe 方法（LAMMPS <code>fix thermal/conductivity</code>）：盒子沿 z 分层，反复交换最热/最冷层的动能 → 产生稳定热流 J。关键：温度梯度 dT/dz 要变成线性且稳定才算收敛。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 A</b>实现 fix，调热流大小与模拟时长</div>
+          <div class="cell"><b>🤝 辅助 B</b>写监控脚本：实时输出每层温度，看梯度是否线性</div>
+          <div class="cell"><b>🔍 质检 C</b>画温度剖面图，判定线性区在哪、边界效应多大</div>
+          <div class="cell"><b>📝 记录 D</b>记录调参过程（试了哪些参数、什么表现），产出《RNEMD 调参记录》</div>
+        </div>
+        <div class="out">✅ 产出：稳定的温度梯度 + 热流 J</div>
+        <div class="risk">⚠️ 主要风险点：RNEMD 不收敛 → 加大热流、延长模拟、增大盒子（预案见规划 §6）</div>
+        <label class="check"><input type="checkbox" data-k="m1s3"> 环节 3 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 4</span><span class="name">算 κ</span></div>
+        <div class="goal">用稳定后的 J 和 dT/dz 代入 <b>κ = J / (2A·dT/dz)</b>。A 是盒子横截面积；那个 <b>2 是几何因子</b>（热流同时往两个方向走）——最常见错误就是漏掉它。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 A</b>主导计算，给出 κ 数值</div>
+          <div class="cell"><b>🤝 辅助 B</b>写自动计算脚本（读 log → 出 κ）</div>
+          <div class="cell"><b>🔍 质检 C</b>复核公式：几何因子 2、横截面积 A 的量纲对不对</div>
+          <div class="cell"><b>📝 记录 D</b>写《κ 计算与单位换算笔记》：real→W/m·K 每一步怎么换</div>
+        </div>
+        <div class="out">✅ 产出：κ 数值（LAMMPS real 单位）</div>
+        <label class="check"><input type="checkbox" data-k="m1s4"> 环节 4 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 5</span><span class="name">单位换算 + 文献校准（M1 验收官）</span></div>
+        <div class="goal">把 κ 换成 W/m·K，与文献中粗粒化高分子的 κ 量级对比（高分子通常 0.1–0.5 W/m·K）。对得上 = 方法正确；差几个数量级 = 前面某步错了。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 D</b>查文献 κ 量级，做对比表（主攻轮换示例：这个环节换 D 当主攻）</div>
+          <div class="cell"><b>🤝 辅助 A</b>提供换算细节（LAMMPS real 单位制参数）</div>
+          <div class="cell"><b>🔍 质检 B</b>复核换算公式每一步</div>
+          <div class="cell"><b>📝 记录 C</b>画对比图：模拟 κ vs 文献 κ</div>
+        </div>
+        <div class="out">✅ 产出：κ（W/m·K）+ 文献对比图 ← M1 验收核心证据</div>
+        <div class="risk">⚠️ 风险点：单位换算错、几何因子 2 漏掉 → 数值差好几倍/数量级</div>
+        <label class="check"><input type="checkbox" data-k="m1s5"> 环节 5 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 6</span><span class="name">构象分析</span></div>
+        <div class="goal">用平衡轨迹算三个构象量：Rg 回转半径（链团多大）、末端距（链多舒展）、取向序 P2（链多整齐）。M1 阶段只要求"能算出来"，为 M2 特征工程铺路。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 C</b>写 Rg/末端距/P2 脚本（MDAnalysis/mdtraj）</div>
+          <div class="cell"><b>🤝 辅助 A</b>提供轨迹，解释这三个量的物理含义</div>
+          <div class="cell"><b>🔍 质检 D</b>检查数值合理性，并思考：这些量以后怎么当 GPR 特征？</div>
+          <div class="cell"><b>📝 记录 B</b>把构象数据整理成表</div>
+        </div>
+        <div class="out">✅ 产出：三个构象量的数值 + 初步图表</div>
+        <label class="check"><input type="checkbox" data-k="m1s6"> 环节 6 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 7</span><span class="name">重复 3 次 + 汇总验收</span></div>
+        <div class="goal">同一条件重跑 ≥3 次，κ 取平均±误差（单次模拟有统计涨落）。汇总成 M1 验收数据表。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 B</b>排队跑 3 次重复（复用环节 1 的生成器）</div>
+          <div class="cell"><b>🤝 辅助 A</b>检查每次算例质量（温度梯度图都正常吗）</div>
+          <div class="cell"><b>🔍 质检 C</b>画 κ 误差棒图</div>
+          <div class="cell"><b>📝 记录 D</b>汇总《M1 验收数据表》：序列、κ、κ_err、构象量、文献对比</div>
+        </div>
+        <div class="out">✅ 产出：κ ± 误差 + M1 验收数据表 → 里程碑 M1 达成 🎉</div>
+        <label class="check"><input type="checkbox" data-k="m1s7"> M1 完成</label>
+      </div>
+
+      <div class="note">🔄 角色轮换轨迹：环节1–4 主攻 A → 环节5 主攻 D → 环节6 主攻 C → 环节7 主攻 B。每个人既当过主攻，也当过质检/记录。</div>
+    </div>
+  </div>
+
+  <!-- ============ M2 ============ -->
+  <h2>3. 里程碑 M2 · 初始数据集 + 统一数据管线</h2>
+  <div class="ms m2">
+    <div class="ms-head">
+      <h3>🎯 M2：把单序列流水线升级成"一条命令批量跑 5 个序列"，CSV 规范定死，GPR 首训</h3>
+      <div class="when">时间：W5–W6（08.31 – 09.13）｜9 月中旬中期检查（约 09.15）展示内容 = M1 + M2，无缓冲</div>
+    </div>
+    <div class="ms-body">
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 1</span><span class="name">序列生成器 + in 模板（批量化的地基）</span></div>
+        <div class="goal">B 的生成器升级为支持任意序列（交替/嵌段/无规），A 的 in 脚本模板化——改序列字符串就能出整套输入文件。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 B</b>生成器 v2 + in 模板</div>
+          <div class="cell"><b>🤝 辅助 A</b>提供模板规范，用交替序列试跑验证</div>
+          <div class="cell"><b>🔍 质检 C</b>随机抽 3 个序列核对生成的 data 文件（键、盒子、类型）</div>
+          <div class="cell"><b>📝 记录 D</b>写生成器使用说明（怎么加一个新序列）</div>
+        </div>
+        <div class="out">✅ 产出：一键生成任意序列输入文件</div>
+        <label class="check"><input type="checkbox" data-k="m2s1"> 环节 1 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 2</span><span class="name">批量跑 3 类代表序列</span></div>
+        <div class="goal">交替/嵌段/无规各 2–3 个代表序列，用 M1 定好的参数批量跑，检查每个算例的收敛质量。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 A</b>定首批序列清单，检查收敛质量</div>
+          <div class="cell"><b>🤝 辅助 B</b>批量管理器 v1：序列清单→逐个跑→收集→汇总，带失败重试</div>
+          <div class="cell"><b>🔍 质检 C</b>抽查温度梯度图、能量曲线，标记可疑算例</div>
+          <div class="cell"><b>📝 记录 D</b>记录每序列的参数与耗时（为 W9 挂机估算算力）</div>
+        </div>
+        <div class="out">✅ 产出：3 类序列首批 κ 数据</div>
+        <label class="check"><input type="checkbox" data-k="m2s2"> 环节 2 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 3</span><span class="name">批处理构象分析</span></div>
+        <div class="goal">M1 的构象脚本升级成批处理：自动遍历轨迹 → 构象汇总 CSV。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 C</b>批处理脚本（遍历轨迹→CSV）</div>
+          <div class="cell"><b>🤝 辅助 B</b>规范轨迹文件命名，方便脚本遍历</div>
+          <div class="cell"><b>🔍 质检 D</b>用已知序列核对构象数值合理性</div>
+          <div class="cell"><b>📝 记录 A</b>记录每序列轨迹产出情况</div>
+        </div>
+        <div class="out">✅ 产出：构象汇总 CSV（Rg/末端距/P2 列）</div>
+        <label class="check"><input type="checkbox" data-k="m2s3"> 环节 3 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 4</span><span class="name">特征编码器（D 的主场）</span></div>
+        <div class="goal">序列字符串 → 特征向量：交替度、嵌段长度均值/最大/方差、最长嵌段、A–B 邻接数。与 B 的序列格式严格对齐。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 D</b>实现编码器 + 测试样例（用 W3 的雏形正式化）</div>
+          <div class="cell"><b>🤝 辅助 B</b>对齐序列字符串格式（编码器与生成器共用同一套）</div>
+          <div class="cell"><b>🔍 质检 C</b>手算 2 个序列的特征值，和编码器输出对账</div>
+          <div class="cell"><b>📝 记录 A</b>记录特征定义与来源（为什么选这些特征）</div>
+        </div>
+        <div class="out">✅ 产出：特征编码器 + 特征矩阵 X</div>
+        <label class="check"><input type="checkbox" data-k="m2s4"> 环节 4 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 5</span><span class="name">CSV 定稿 + 误差分析（全队接口，最重要）</span></div>
+        <div class="goal">统一 10 列规范：<code>sequence, alt_degree, block_mean, block_max, block_var, Rg, end_to_end, orient_p2, kappa, kappa_err</code>。误差 = 重复标准差或块平均。这是全队不互相等数据的关键，中期检查评审的就是它。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 B/C</b>B 汇总 CSV 定稿+入库规范；C 做误差分析（块平均/重复标准差）</div>
+          <div class="cell"><b>🤝 辅助 A</b>确保 5 个序列数据质量（收敛检查、重复完整性）</div>
+          <div class="cell"><b>🔍 质检 D</b>用数据加载函数试读 CSV，检查列名/单位/缺失值</div>
+          <div class="cell"><b>📝 记录 全员</b>W6 例会评审最终 CSV 规范，人人签字确认</div>
+        </div>
+        <div class="out">✅ 产出：定稿 CSV + 误差分析 + 「构象-序列」初步图表</div>
+        <label class="check"><input type="checkbox" data-k="m2s5"> 环节 5 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 6</span><span class="name">GPR 首次训练（M2 验收之一）</span></div>
+        <div class="goal">用 5 个样本训练第一版 GPR：StandardScaler 标准化 → LeaveOneOut 交叉验证 → 预测 vs 真实图，RBF/Matern 核对比。5 个样本必然过拟合，这一步的意义是"验证数据管线畅通 + 全员看懂 GPR 是什么"。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 D</b>训练 + 评估图（这是 D 从 W1 就开始铺垫的主场）</div>
+          <div class="cell"><b>🤝 辅助 C</b>画预测 vs 真实图、误差图</div>
+          <div class="cell"><b>🔍 质检 B</b>检查数据是否泄漏（scaler 是否只 fit 训练集）</div>
+          <div class="cell"><b>📝 记录 A</b>记录 GPR 概念笔记：核函数、后验均值/方差、交叉验证是什么</div>
+        </div>
+        <div class="out">✅ 产出：GPR 评估图（LOO 预测 vs 真实）→ 里程碑 M2 达成 🎉（接着中期检查）</div>
+        <label class="check"><input type="checkbox" data-k="m2s6"> M2 完成</label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ M3 ============ -->
+  <h2>4. 里程碑 M3 · 主动学习闭环跑通</h2>
+  <div class="ms m3">
+    <div class="ms-head">
+      <h3>🎯 M3：D 推荐 → B 自动模拟 → C 分析 → D 重训，闭环迭代 10 轮；国庆挂机到 20 次并收敛</h3>
+      <div class="when">时间：W7–W9（09.14 – 10.04）｜验收：≥20 次模拟且连续两轮 κ 提升 &lt;5%</div>
+    </div>
+    <div class="ms-body">
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 1</span><span class="name">EI 采集函数（把"预测"变成"推荐"的关键）</span></div>
+        <div class="goal">实现期望改进 EI = E[max(f(x)−f_best, 0)]，用 GPR 的后验均值+方差算"哪个序列最值得模拟"。这是主动学习和普通回归的唯一区别。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 D</b>实现 EI（scipy.stats.norm）+ 单元测试</div>
+          <div class="cell"><b>🤝 辅助 C</b>画出"后验均值±方差 + EI 曲线"示意图（W7 例会 D 讲 EI 原理时用）</div>
+          <div class="cell"><b>🔍 质检 B</b>用 2 个已知结果反推验证 EI 打分合理</div>
+          <div class="cell"><b>📝 记录 A</b>记录 EI 公式推导笔记，例会负责复述</div>
+        </div>
+        <div class="out">✅ 产出：EI 推荐器 + 原理讲解图</div>
+        <label class="check"><input type="checkbox" data-k="m3s1"> 环节 1 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 2</span><span class="name">任务队列 v1（B 的主场）</span></div>
+        <div class="goal">队列脚本：读 D 的推荐文件 → 只跑新序列 → 结果自动追加数据集。这是"闭环能自动转"的机械部分。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 B</b>队列脚本 v1（推荐文件→模拟→追加 CSV）</div>
+          <div class="cell"><b>🤝 辅助 A</b>提供算例质量检查接口（每跑完一个自动校验）</div>
+          <div class="cell"><b>🔍 质检 C</b>模拟一次完整队列流程，确认数据正确追加</div>
+          <div class="cell"><b>📝 记录 D</b>写《队列脚本使用说明》</div>
+        </div>
+        <div class="out">✅ 产出：自动追加数据的队列脚本</div>
+        <label class="check"><input type="checkbox" data-k="m3s2"> 环节 2 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 3</span><span class="name">热流分解初版（加分项，不阻塞主线）</span></div>
+        <div class="goal">用 <code>compute heat/flux</code> 区分键内（bond）与范德华（pair）贡献，对比占比随序列变化。定位是"尽力而为的加分项"。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 C</b>热流分解实现初版（W4 报告落地）</div>
+          <div class="cell"><b>🤝 辅助 A</b>提供 per-atom 热流输出配置</div>
+          <div class="cell"><b>🔍 质检 D</b>检查分解数值是否自洽（各贡献之和 ≈ 总 κ）</div>
+          <div class="cell"><b>📝 记录 B</b>记录分解方法笔记</div>
+        </div>
+        <div class="out">✅ 产出：bond vs pair 贡献占比初版</div>
+        <label class="check"><input type="checkbox" data-k="m3s3"> 环节 3 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 4</span><span class="name">闭环串联：四人的手全在这条环上</span></div>
+        <div class="goal">把已有部件接成闭环：读数据→训练 GPR→EI 推荐 top-2→写推荐文件→B 跑模拟→读新数据→重训。每个环节一个人守着。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 D</b>主循环脚本 + 全程日志</div>
+          <div class="cell"><b>🤝 辅助 B</b>守队列端：模拟→数据回流</div>
+          <div class="cell"><b>🤝 辅助 A</b>守质量端：新算例收敛检查</div>
+          <div class="cell"><b>🔍 质检 C</b>守分析端：随跑出图，发现异常立即喊停</div>
+        </div>
+        <div class="out">✅ 产出：闭环 v1（W8 例会上全员过一遍流程图，D 主讲）</div>
+        <label class="check"><input type="checkbox" data-k="m3s4"> 环节 4 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 5</span><span class="name">迭代 10 轮 + 收敛判据</span></div>
+        <div class="goal">闭环跑 10 轮迭代；实现收敛判据（连续两轮最佳 κ 提升 &lt;5% 即停）。加容错：某序列模拟失败要跳过而不是卡死。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 D</b>收敛判据实现 + 10 轮数据记录</div>
+          <div class="cell"><b>🤝 辅助 B</b>队列容错（失败重试/跳过）+ 日志</div>
+          <div class="cell"><b>🔍 质检 C</b>每轮出 κ vs 轮次图（草稿），检查模型是否"越选越准"</div>
+          <div class="cell"><b>📝 记录 A</b>记录每轮推荐了哪些序列、结果如何</div>
+        </div>
+        <div class="out">✅ 产出：10 轮迭代 + 迭代曲线草稿 → 里程碑 M3 达成 🎉</div>
+        <label class="check"><input type="checkbox" data-k="m3s5"> M3 完成</label>
+      </div>
+
+      <div class="step-card">
+        <div class="st-head"><span class="no">环节 6</span><span class="name">国庆挂机迭代至 20 次（W9）</span></div>
+        <div class="goal">节前把队列排好挂机跑（10.1–10.7 弹性），节后收数据、检查收敛状态、输出最终迭代曲线。这是全项目算力利用率的关键周——W8 必须把队列跑顺。</div>
+        <div class="who">
+          <div class="cell"><b>🛠 主攻 B</b>挂机脚本最终检查（断点续跑/错误重启），节后收数汇总</div>
+          <div class="cell"><b>🤝 辅助 A</b>算例质量抽检</div>
+          <div class="cell"><b>🔍 质检 C</b>节后补随跑分析图</div>
+          <div class="cell"><b>📝 记录 D</b>节前写好自动迭代脚本；节后输出迭代曲线（κ vs 轮次）</div>
+        </div>
+        <div class="out">✅ 产出：20 次模拟 + 收敛判定 + 迭代曲线（主动学习价值的核心证据）</div>
+        <label class="check"><input type="checkbox" data-k="m3s6"> W9 挂机完成</label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 之后 -->
+  <h2>5. M3 之后（W10–W12）</h2>
+  <div class="card">
+    <ul style="margin-left:20px; font-size:14px;">
+      <li><b>W10 随机对照验证</b>：随机序列 10–20 条对照组，检验最优 vs 随机 κ 提升 &gt;20%（t 检验）</li>
+      <li><b>W11 机制与设计规则</b>：特征网格扫描后验均值 → 阈值 → 规则语句（如"嵌段长度≤2 且交替度≥0.7"）+ 机制图</li>
+      <li><b>W12 收尾</b>：报告 + 可复现代码 + 答辩 PPT，预答辩 ≥2 次</li>
+    </ul>
+  </div>
+
+  <!-- 部署说明 -->
+  <h2>6. 怎么让 4 个人都能看到这个网站（5 分钟部署）</h2>
+  <div class="deploy">
+    <p style="font-size:14px;"><b>方法 A：GitHub Pages（推荐，免费、永久、不用命令行）</b></p>
+    <ol>
+      <li>任意一人注册 GitHub（github.com，免费）</li>
+      <li>点右上角 <b>+ → New repository</b>，名字随便如 <code>project-site</code>，选 <b>Public</b>，勾选 <b>Add a README file</b>，Create</li>
+      <li>进入仓库 → <b>Add file → Upload files</b> → 把本网页拖进去（重命名为 <code>index.html</code>）→ Commit changes</li>
+      <li>仓库 <b>Settings → Pages</b> → Source 选 <b>Deploy from a branch</b> → Branch 选 <b>main</b> → Save</li>
+      <li>等 1 分钟，访问 <code>https://你的用户名.github.io/project-site/</code>，把链接发群里即可</li>
+    </ol>
+    <p style="font-size:14px; margin-top:14px;"><b>方法 B：本地先看</b>——直接双击打开本 HTML 文件，浏览器就能看、能打勾（打勾状态存在自己浏览器里，部署后各人各自记）。</p>
+    <p style="font-size:14px; margin-top:6px;"><b>方法 C：不想建站</b>——把各里程碑环节表格复制进飞书文档/腾讯文档（你们已用它做共享文档），同样能 4 人共同编辑打勾。</p>
+  </div>
+
+  <div class="note">📌 进度打勾只存在你当前浏览器里（localStorage），4 个人各自打勾、周五例会时对着屏幕对一遍即可。</div>
+
+  <footer>共聚物热导率项目 · 里程碑作战地图 · 生成于 2026-08-12 · 配合《共聚物热导率项目-规划与分工.md》使用</footer>
+</div>
+
+<script>
+  // 打勾状态存浏览器
+  document.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    var k = cb.getAttribute('data-k');
+    var saved = localStorage.getItem(k);
+    if (saved === '1') { cb.checked = true; }
+    cb.addEventListener('change', function(){
+      localStorage.setItem(k, cb.checked ? '1' : '0');
+    });
+  });
+</script>
+</body>
+</html>
